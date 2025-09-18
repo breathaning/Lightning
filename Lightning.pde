@@ -58,7 +58,14 @@ void mousePressed() {
 }
 
 void drawBackground() {
- background(lerpColor(SKY_STORM_COLOR, SKY_CLEAR_COLOR, (millis() - lastClick - 1500) / 1000.0));  
+  float alpha = (millis() - lastClick - 1500) / 1000.0;
+  if (alpha > 1) {
+    alpha = 1;
+  }
+  if (alpha < 0) {
+    alpha = 0;
+  }
+  background(lerpColor(SKY_STORM_COLOR, SKY_CLEAR_COLOR, alpha));  
 }
 
 void drawForeground() {
