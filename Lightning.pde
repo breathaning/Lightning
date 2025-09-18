@@ -132,16 +132,15 @@ void drawCelestialObject() {
   translate(0, height);
   rotate(CELESTIAL_REST_ROTATION);
   float transitionProgress = getCelestialTransitionProgress();
-  if (transitionProgress > 0.5) {
-    celestialObject = getNextCelestialObject(lastCelestialObject);
-    rotate((transitionProgress - 1) * CELESTIAL_TRANSITION_ROTATION);
-  } else {
-    rotate(transitionProgress * CELESTIAL_TRANSITION_ROTATION); 
-  }
   if (transitionProgress == 1 && celestialObject != "Sun" && getTargetCelestialObject().equals("Sun")) {
     lastCelestialTransition = time;
     celestialObject = "Moon";
     lastCelestialObject = celestialObject;
+  } else if (transitionProgress > 0.5) {
+    celestialObject = getTargetCelestialObject();
+    rotate((transitionProgress - 1) * CELESTIAL_TRANSITION_ROTATION);
+  } else {
+    rotate(transitionProgress * CELESTIAL_TRANSITION_ROTATION); 
   }
   translate(0, CELESTIAL_DISTANCE);
   if (celestialObject.equals("Sun")) {
