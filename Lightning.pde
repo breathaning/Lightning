@@ -1,4 +1,3 @@
-//
 float GRAVITY = 981;
 float GROUND_HEIGHT = 50;
 float LIGHTNING_DIG = 20;
@@ -6,10 +5,10 @@ float CELESTIAL_REST_ROTATION = -PI * 3 / 4;
 float CELESTIAL_TRANSITION_ROTATION = -PI / 2;
 float CELESTIAL_TRANSITION_TIME = 1;
 float CELESTIAL_DISTANCE;
-color SKY_CLEAR_COLOR = color(100, 200, 255);
-color SKY_STORM_COLOR = color(30, 0, 80);
-color LIGHTNING_COLOR = color(243,170,0);
-color SPARK_COLOR = color(255, 230, 0);
+color SKY_CLEAR_COLOR;
+color SKY_STORM_COLOR;
+color LIGHTNING_COLOR;
+color SPARK_COLOR;
 
 float lastClick = -999999;
 float lastClickX = 0;
@@ -19,7 +18,12 @@ ArrayList<Spark> sparkList = new ArrayList<Spark>();
 
 void setup() {
   size(500, 500);
+  colorMode(RGB, 255);
   CELESTIAL_DISTANCE = height * 1.2;
+  SKY_CLEAR_COLOR = color(100, 200, 255);
+  SKY_STORM_COLOR = color(30, 0, 80);
+  LIGHTNING_COLOR = color(243,170,0);
+  SPARK_COLOR = color(255, 230, 0);
 }
 
 void draw() {
