@@ -7,7 +7,7 @@ float CELESTIAL_TRANSITION_TIME = 1;
 float CELESTIAL_DISTANCE;
 color SKY_CLEAR_COLOR = color(100, 200, 255);
 color SKY_STORM_COLOR = color(30, 0, 80);
-color LIGHTNING_COLOR = color(243,170,0);
+color LIGHTNING_COLOR = color(243, 170, 0);
 color SPARK_COLOR = color(255, 230, 0);
 
 float lastClick = -999999;
@@ -25,6 +25,7 @@ int time = millis();
 
 ArrayList<Bolt> boltList = new ArrayList<Bolt>();
 ArrayList<Spark> sparkList = new ArrayList<Spark>();
+ArrayList<Patch> patchList = new ArrayList<Patch>();
 
 void setup() {
   size(500, 500);
@@ -34,30 +35,37 @@ void setup() {
 
 void draw() {
   time = millis();
-  
+
   if (doSummon) {
     summonLightning(summonX, summonY);
     doSummon = false;
   }
-  
+
   drawBackground();
   drawForeground();
   drawCelestialObject();
   
+  int originalPatchListSize = patchList.size();
+  for (int i = 0; i < originalPatchListSize; i++) {
+    int index = i + patchList.size() - originalPatchListSize;
+    Patch patch = patchList.get(index);
+    patch.update();
+  }
+
   int originalBoltListSize = boltList.size();
   for (int i = 0; i < originalBoltListSize; i++) {
     int index = i + boltList.size() - originalBoltListSize;
     Bolt bolt = boltList.get(index);
     bolt.update();
   }
-  
+
   int originalSparkListSize = sparkList.size();
   for (int i = 0; i < originalSparkListSize; i++) {
     int index = i + sparkList.size() - originalSparkListSize;
     Spark spark = sparkList.get(index);
     spark.update();
   }
-  
+
   drawFlash();
 }
 
@@ -76,6 +84,7 @@ void summonLightning(float summonX, float summonY) {
     lastCelestialTransition = time;
   }
   new Bolt(summonX, 0);
+  new Patch(summonX, height - GROUND_HEIGHT + LIGHTNING_DIG);
   for (int i = 0; i < 16; i++) { 
     new Spark(summonX, (float)(height - GROUND_HEIGHT + LIGHTNING_DIG), (float)(Math.random() * 300 + 400), -PI / 2 + (float)((Math.random() - 0.5) * PI / 4));
   }
@@ -112,7 +121,7 @@ float getSkyTransitionProgress() {
 void drawBackground() {
   float alpha = (time - lastClick - 1500) / 1000.0;
   alpha = Math.max(Math.min(alpha, 1), 0);
-  background(lerpColor(SKY_STORM_COLOR, SKY_CLEAR_COLOR, alpha));  
+  background(lerpColor(SKY_STORM_COLOR, SKY_CLEAR_COLOR, alpha));
 }
 
 void drawForeground() {
@@ -140,7 +149,7 @@ void drawCelestialObject() {
     celestialObject = getTargetCelestialObject();
     rotate((transitionProgress - 1) * CELESTIAL_TRANSITION_ROTATION);
   } else {
-    rotate(transitionProgress * CELESTIAL_TRANSITION_ROTATION); 
+    rotate(transitionProgress * CELESTIAL_TRANSITION_ROTATION);
   }
   translate(0, CELESTIAL_DISTANCE);
   if (celestialObject.equals("Sun")) {
@@ -211,7 +220,7 @@ class Bolt {
   float startY;
   float creationTime;
   float ageMillis;
-  
+
   Bolt(float startX, float startY) {
     this.startX = startX;
     this.startY = startY;
@@ -219,7 +228,7 @@ class Bolt {
     this.ageMillis = 0;
     boltList.add(this);
   }
-  
+
   void update() {
     ageMillis = time - creationTime;
     if (ageMillis > 1500) {
@@ -235,9 +244,9 @@ class Bolt {
     stroke(LIGHTNING_COLOR, 600 - (ageMillis / 1.5));
     drawInstantLightning(startX, startY, PI / 2, threshold, 8, 16, 4);
   }
-  
+
   void destroy() {
-    boltList.remove(this); 
+    boltList.remove(this);
   }
 }
 
@@ -249,7 +258,7 @@ class Spark {
   float creationTime;
   float age;
   color strokeColor;
-  
+
   Spark(float startX, float startY, float speed, float direction) {
     this.startX = startX;
     this.startY = startY;
@@ -260,7 +269,7 @@ class Spark {
     this.strokeColor = randomColor();
     sparkList.add(this);
   }
-  
+
   void update() {
     age = time - creationTime;
     if (age > 1500) {
@@ -273,7 +282,7 @@ class Spark {
     float y = startY + (initialVelocityY * age / 1000) + (0.5 * GRAVITY * (float)Math.pow(age / 1000, 2)) + (float)((Math.random() - 0.5) * 10);
     drawInstantLightning(x, y, (float)(Math.random() * 2 * PI), 10, 3, 9, 3);
   }
-  
+
   void destroy() {
     sparkList.remove(this);
   }
@@ -282,8 +291,45 @@ class Spark {
 class Patch {
   float x;
   float y;
+  float creationTime;
+  float age;
+
   Patch(float x, float y) {
     this.x = x;
     this.y = y;
+    this.creationTime = time;
+    this.age = 0;
+    patchList.add(this);
+  }
+
+  void update() {
+    age = time - creationTime;
+    if (age > 3000) {
+      destroy();
+      return;
+    }
+    noStroke();
+    fill(25, 25, 25, 1500 - (age / 2));
+    pushMatrix();
+    translate(x, y);
+    beginShape();
+    vertex(0, -10);
+    vertex(5, -3);
+    vertex(20, 0);
+    vertex(15, 2);
+    vertex(25, 10);
+    vertex(10, 5);
+    vertex(0, 15);
+    vertex(-10, 5);
+    vertex(-25, 10);
+    vertex(-15, 2);
+    vertex(-20, 0);
+    vertex(-5, -3);
+    endShape(CLOSE);
+    popMatrix();
+  }
+
+  void destroy() {
+    patchList.remove(this);
   }
 }
